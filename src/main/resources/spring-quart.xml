@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	   xmlns:aop="http://www.springframework.org/schema/aop" 
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	   xmlns:tx="http://www.springframework.org/schema/tx" 
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.0.xsd 
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+	<!-- 定义job信息 -->
+	<bean name="jobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="com.bj58.api.quart.Myjob" />
+		<property name="applicationContextJobDataKey" value="applicationContext" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="size" value="10" />
+			</map>
+		</property>
+	</bean>
+	<bean id="jobDetail_1"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="myService" />
+		<property name="targetMethod" value="doJob" />
+		<property name="concurrent" value="false" />
+	</bean>
+	<bean id="myService" class="com.bj58.api.quart.MyService" />
+	<!-- 定义触发器 -->
+	<bean id="simpleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="jobDetail" />
+		<property name="startDelay" value="1000" />
+		<property name="repeatInterval" value="2000" />
+		<property name="repeatCount" value="100" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="count" value="10" />
+			</map>
+		</property>
+	</bean>
+	<!-- 调度 -->
+	<bean id="scheduler"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="simpleTrigger" />
+			</list>
+		</property>
+		<property name="schedulerContextAsMap">
+			<map>
+				<entry key="timeout" value="30" />
+			</map>
+		</property>
+		<!-- <property name="configLocation" value="classpath:com/bj58/api/quart/quart.properties"/> -->
+	</bean>
+	
+</beans>
